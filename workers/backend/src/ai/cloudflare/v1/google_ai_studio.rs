@@ -76,7 +76,7 @@ pub async fn call_ai(
     // Log payload construction
     console_trace!("TRACE: Constructing request payload");
     let payload = json!({
-        "promptId": AI_PROMPT_ID,
+        "presetId": AI_PROMPT_ID,
         "contents": [{
             "role": "system",
             "parts": [{
