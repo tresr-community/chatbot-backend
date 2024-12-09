@@ -21,6 +21,7 @@ use chatbot_utils::console_trace;
 
 const AI_ENDPOINT: &str = "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/nftreasure-community/google-ai-studio";
 const AI_MODEL: &str = "gemini-1.5-pro";
+const AI_PROMPT_ID: &str = "1ZYi1ya_vmzD_9Vk8CDR3wr2YxPzheWSq";
 
 // Response structures matching Google AI's format
 #[derive(Deserialize)]
@@ -75,6 +76,7 @@ pub async fn call_ai(
     // Log payload construction
     console_trace!("TRACE: Constructing request payload");
     let payload = json!({
+        "promptId": AI_PROMPT_ID,
         "contents": [{
             "role": "system",
             "parts": [{
