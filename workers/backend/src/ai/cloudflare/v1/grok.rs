@@ -26,7 +26,7 @@ use worker::*;
 
 use chatbot_utils::console_trace;
 
-const AI_ENDPOINT: &str = "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/nfttreasure-community/grok";
+const AI_ENDPOINT: &str = "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/nftreasure-community/grok";
 const AI_MODEL: &str = "grok-beta";
 
 // Response structures matching Grok's format
