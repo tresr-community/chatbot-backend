@@ -131,7 +131,6 @@ jobs:
       - id: cargo_check
         name: Run Cargo check
         run: |
-          cargo clean
           cargo --version
           cargo check --verbose --workspace
 
@@ -265,12 +264,6 @@ jobs:
           wasm-pack
           worker-build
           || true
-
-      - id: cargo_check_worker
-        name: Run Cargo check
-        run: |
-          cargo --version
-          cargo check --verbose --package ${{ matrix.worker }}
 
       - id: build_worker
         name: Test building the Cloudflare Worker
