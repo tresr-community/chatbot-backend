@@ -8,7 +8,7 @@
 pub mod chatbot;
 pub mod cloudflare;
 
-use utils::console_trace;
+use chatbot_utils::console_trace;
 
 use serde_json::Value;
 use worker::*;

@@ -5,7 +5,7 @@
 ///
 /// A mapping of the user friendly name to the system prompt in use.
 ///
-use utils::console_trace;
+use chatbot_utils::console_trace;
 
 use worker::*;
 

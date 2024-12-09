@@ -9,7 +9,7 @@ pub mod google_ai_studio;
 pub mod grok;
 pub mod prompt;
 
-use utils::console_trace;
+use chatbot_utils::console_trace;
 
 use serde_json::json;
 use worker::*;

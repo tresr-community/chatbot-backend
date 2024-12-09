@@ -1,7 +1,7 @@
 [package]
 
-name = "utils"
-description = "Shared utilities for the worker and the client"
+name = "chatbot-utils"
+description = "NFTREASURE Community ChatBot shared utilities"
 version = "1.0.0"
 edition = "2021"
 license = "Unlicense"

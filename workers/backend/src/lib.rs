@@ -10,8 +10,8 @@
 mod ai;
 mod routes;
 
-use utils::console_trace;
-use utils::handler::handle_404;
+use chatbot_utils::console_trace;
+use chatbot_utils::handler::handle_404;
 
 use routes::*;
 use worker::*;

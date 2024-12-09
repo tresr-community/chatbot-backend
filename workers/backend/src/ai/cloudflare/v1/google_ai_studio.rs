@@ -17,7 +17,7 @@ use serde::Deserialize;
 use serde_json::json;
 use worker::*;
 
-use utils::console_trace;
+use chatbot_utils::console_trace;
 
 const AI_ENDPOINT: &str = "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/nftreasure-community/google-ai-studio";
 const AI_MODEL: &str = "gemini-1.5-pro";

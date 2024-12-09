@@ -1,4 +1,4 @@
-use utils::console_trace;
+use chatbot_utils::console_trace;
 
 use worker::*;
 

@@ -1,7 +1,7 @@
 [package]
 
-name = "api"
-description = "A chatbot for the NFTREASURE community"
+name = "chatbot-backend"
+description = "NFTREASURE Community ChatBot backend"
 version = "1.0.0"
 edition = "2021"
 license = "Unlicense"
@@ -23,7 +23,7 @@ crate-type = ["cdylib"]
 [dependencies]
 
 # Load the shared-libs crate
-utils = { path = "../../crates/utils" }
+chatbot-utils = { path = "../../crates/utils" }
 
 # External dependencies
 worker = "0.4.2"

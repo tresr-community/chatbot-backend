@@ -1,8 +1,8 @@
 use crate::ai;
 
-use utils::common::{parse_path, validate_env_var};
-use utils::console_trace;
-use utils::cors::{add_headers, check_origin, preflight};
+use chatbot_utils::common::{parse_path, validate_env_var};
+use chatbot_utils::console_trace;
+use chatbot_utils::cors::{add_headers, check_origin, preflight};
 
 use serde::Deserialize;
 use std::collections::HashMap;
