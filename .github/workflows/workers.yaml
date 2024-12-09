@@ -131,6 +131,7 @@ jobs:
       - id: cargo_check
         name: Run Cargo check
         run: |
+          cargo clean
           cargo --version
           cargo check --verbose --workspace
 
