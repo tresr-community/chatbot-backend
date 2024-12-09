@@ -1,0 +1,111 @@
+#:schema node_modules/wrangler/config-schema.json
+##################################################
+# Name: wrangler.toml
+# Description: Cloudflare Workers config
+##################################################
+
+#########################
+# Global
+#########################
+
+name = "nftreasure-community-chatbot-backend"
+
+account_id = "6d6a8fb1f9f3f38b7374d4974c0743cf"
+
+workers_dev = false
+
+usage_model = "bundled"
+
+compatibility_date = "2024-12-01"
+
+main = "build/worker/shim.mjs"
+
+logpush = true
+
+[placement]
+
+mode = "smart"
+
+[observability]
+
+enabled = true
+
+#####################################################
+# Development environment
+#####################################################
+
+[env.development]
+
+local = true
+
+# Ref: https://developers.cloudflare.com/workers/about/routes/
+routes = [
+	{ pattern = "localhost:9200/*", zone_name = "localhost" },
+]
+
+[env.development.build]
+
+command = "../../scripts/build.sh api debug"
+
+[env.development.vars]
+
+ALLOWED_ORIGINS = '{ "allowed_origins": ["https://localhost", "https://localhost:9000", "http://localhost:9100", "http://localhost:9200"] }'
+ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+
+[[env.development.r2_buckets]]
+
+binding = "R2_ASSETS"
+bucket_name = "nftreasure-community-chatbot-preview"
+preview_bucket_name = "nftreasure-community-chatbot-preview"
+
+#####################################################
+# Preview environment
+#####################################################
+
+[env.preview]
+
+# Ref: https://developers.cloudflare.com/workers/about/routes/
+routes = [
+	{ pattern = "preview.chat.nftreasure.community/ai/*", zone_name = "nftreasure.community" },
+]
+
+[env.preview.build]
+
+command = "../../scripts/build.sh api release"
+
+[env.preview.vars]
+
+ALLOWED_ORIGINS = '{ "allowed_origins": ["https://preview.nftreasure.community","https://preview.chat.nftreasure.community"] }'
+ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+
+[[env.preview.r2_buckets]]
+
+binding = "R2_ASSETS"
+bucket_name = "nftreasure-community-chatbot-preview"
+preview_bucket_name = "nftreasure-community-chatbot-preview"
+
+#####################################################
+# Production environment
+#####################################################
+
+[env.production]
+
+# Ref: https://developers.cloudflare.com/workers/about/routes/
+routes = [
+	{ pattern = "chat.nftreasure.community/ai/*", zone_name = "nftreasure.community" },
+]
+
+[env.production.build]
+
+command = "../../scripts/build.sh api release"
+
+[env.production.vars]
+
+ALLOWED_ORIGINS = '{ "allowed_origins": ["https://nftreasure.community","https://chat.nftreasure.community"] }'
+ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+
+[[env.production.r2_buckets]]
+
+binding = "R2_ASSETS"
+bucket_name = "nftreasure-community-chatbot"
+preview_bucket_name = "nftreasure-community-chatbot"

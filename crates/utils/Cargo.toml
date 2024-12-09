@@ -1,0 +1,31 @@
+[package]
+
+name = "utils"
+description = "Shared utilities for the worker and the client"
+version = "1.0.0"
+edition = "2021"
+license = "Unlicense"
+repository = "https://github.com/NFPLEASURE/chatbot"
+
+[package.metadata.release]
+
+release = false
+
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+
+wasm-opt = true
+
+[lib]
+
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+
+worker = "0.4.2"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+
+wasm-bindgen = "0.2.99"

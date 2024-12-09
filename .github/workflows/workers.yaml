@@ -1,0 +1,447 @@
+##################################################
+# Name: workers.yaml
+# Description:
+#   A Workflow that publishes Cloudflare Workers.
+##################################################
+
+name: Workers
+
+on:
+  # Automatically run anytime there
+  # is a push to the default branch
+  push:
+    branches:
+      - trunk
+
+  # Automatically run anytime a PR
+  # targets the default branch
+  # for the defined types.
+  pull_request:
+    branches:
+      - trunk
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - review_requested
+
+  # Re-build every week to ensure
+  # the workers still builds as external
+  # dependencies change.
+  schedule:
+    - cron: "0 0 * * 0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Cloudflare account details.
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_TOKEN_WRANGLER: ${{ secrets.CLOUDFLARE_WORKERS_TOKEN }}
+  CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+  CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+
+  # Enable or disable Cloudflare KV and R2
+  CLOUDFLARE_KV_ENABLED: FALSE
+  CLOUDFLARE_R2_ENABLED: TRUE
+
+  # GitHUb details.
+  ORGANISATION: ${{ github.repository_owner }}
+  PROJECT: ${{ github.event.repository.name }}
+
+  # Works on pushes or PRs
+  BRANCH_NAME_CURRENT: ${{ github.head_ref || github.ref_name }}
+  BRANCH_NAME_DEFAULT: ${{ github.event.repository.default_branch }}
+
+jobs:
+  ##################################################
+  # Build and Test the Rust workspace
+  ##################################################
+
+  cargo:
+    name: Cargo Workspace
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 60
+    continue-on-error: false
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+        target:
+          - wasm32-unknown-unknown
+        toolchain:
+          - stable
+
+    steps:
+      - id: checkout_repository
+        name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: true
+          submodules: recursive
+
+      - id: setup_rust
+        name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - id: cache_rust_artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - id: setup_rust_deps
+        name: Setup Rust dependencies
+        run: >-
+          cargo install
+          toml-cli
+          wasm-opt
+          wasm-pack
+          worker-build
+          || true
+
+      - id: cargo_check
+        name: Run Cargo check
+        run: |
+          cargo --version
+          cargo check --verbose --workspace
+
+      - id: cargo_fmt
+        name: Run Cargo format
+        run: |
+          rustup component add rustfmt
+          rustup component list --toolchain ${{ matrix.toolchain }}
+          cargo fmt --version
+          cargo fmt --all -- --check
+
+      - id: cargo_clippy
+        name: Run Cargo clippy
+        run: |
+          rustup component add clippy
+          rustup component list --toolchain ${{ matrix.toolchain }}
+          cargo clippy --version
+          cargo clippy  --all --all-features --target ${{ matrix.target }} -- -D warnings
+
+      - id: cargo_test
+        name: Run Cargo tests
+        run: |
+          cargo --version
+          cargo test --verbose --workspace
+
+  ##################################################
+  # Generate a dynamic Matrix of Cloudflare Workers.
+  ##################################################
+
+  matrix:
+    name: Worker Matrix
+
+    runs-on: ${{ matrix.os }}
+
+    needs:
+      - cargo
+
+    timeout-minutes: 5
+    continue-on-error: false
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+
+    steps:
+      - id: checkout_repository
+        name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: true
+          submodules: recursive
+
+      - id: generate_matrix
+        name: Generating a matrix of worker names
+        run: |
+          echo "Generating matrix of worker names..."
+          WORKER_NAMES=$(find workers -mindepth 1 -maxdepth 1 -type d ! -name "_templates" ! -name "_disabled*" -printf "%f\n" | jq -R -s -c 'split("\n")[:-1]')
+          echo "${WORKER_NAMES}" | jq .
+          echo "WORKER_MATRIX=${WORKER_NAMES}" >> "${GITHUB_OUTPUT}"
+
+    outputs:
+      worker_matrix: ${{ steps.generate_matrix.outputs.WORKER_MATRIX }}
+
+  ##################################################
+  # Build and Test each Cloudflare Worker
+  ##################################################
+
+  build:
+    name: Build Worker ${{ matrix.worker }}
+
+    runs-on: ${{ matrix.os }}
+
+    needs:
+      - matrix
+
+    timeout-minutes: 60
+    continue-on-error: false
+
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: ${{ fromJson(needs.matrix.outputs.worker_matrix) }}
+        os:
+          - ubuntu-latest
+        target:
+          - wasm32-unknown-unknown
+        toolchain:
+          - stable
+
+    steps:
+      - id: checkout_repository
+        name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: true
+          submodules: recursive
+
+      - id: setup_rust
+        name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - id: cache_rust_artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - id: setup_rust_deps
+        name: Setup Rust dependencies
+        run: >-
+          cargo install
+          toml-cli
+          wasm-opt
+          wasm-pack
+          worker-build
+          || true
+
+      - id: cargo_check_worker
+        name: Run Cargo check
+        run: |
+          cargo --version
+          cargo check --verbose --package ${{ matrix.worker }}
+
+      - id: build_worker
+        name: Test building the Cloudflare Worker
+        run: |
+          ./scripts/build.sh ${{ matrix.worker }} release
+
+  ##################################################
+  # Deploy each Cloudflare Worker
+  ##################################################
+
+  deploy:
+    name: Deploy Worker ${{ matrix.worker }}
+
+    runs-on: ${{ matrix.os }}
+
+    needs:
+      - matrix
+      - build
+
+    timeout-minutes: 60
+    continue-on-error: false
+
+    strategy:
+      fail-fast: true
+      matrix:
+        worker: ${{ fromJson(needs.matrix.outputs.worker_matrix) }}
+        os:
+          - ubuntu-latest
+        target:
+          - wasm32-unknown-unknown
+        toolchain:
+          - stable
+
+    steps:
+      - id: checkout_repository
+        name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: true
+          submodules: recursive
+
+      - id: setup_rust
+        name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - id: cache_rust_artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - id: setup_rust_deps
+        name: Setup Rust dependencies
+        run: >-
+          cargo install
+          toml-cli
+          wasm-opt
+          wasm-pack
+          worker-build
+          || true
+
+      - id: setup_other_deps
+        name: Setup other dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm rclone
+
+      - id: rclone_config
+        name: Create rclone configuration
+        if: ${{ env.CLOUDFLARE_R2_ENABLED == 'TRUE' }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat << EOF > ~/.config/rclone/rclone.conf
+          [r2]
+          type = s3
+          provider = Cloudflare
+          access_key_id = ${{ env.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          secret_access_key = ${{ env.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          endpoint = https://${{ env.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          acl = private
+          EOF
+
+      - id: rclone_test
+        if: ${{ env.CLOUDFLARE_R2_ENABLED == 'TRUE' }}
+        name: Test rclone configuration
+        run: |
+          rclone tree r2:
+
+      - id: get_environment
+        name: Get Environment
+        run: |
+          if [[ "${{ env.BRANCH_NAME_CURRENT }}" == "${{ env.BRANCH_NAME_DEFAULT }}" ]];
+          then
+            echo "Environment: Production"
+            echo "WRANGLER_ENVIRONMENT=production" >> "${GITHUB_OUTPUT}"
+          else
+            echo "Environment: Preview"
+            echo "WRANGLER_ENVIRONMENT=preview" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - id: get_bindings
+        name: Get Binding IDs
+        env:
+          WRANGLER_ENVIRONMENT: ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+        run: |
+          cd workers/${{ matrix.worker }}
+          if [[ -f "wrangler.toml" ]];
+          then
+            echo "Extracting KV_ID and R2_ID from wrangler.toml for ${WRANGLER_ENVIRONMENT} environment"
+            case "${WRANGLER_ENVIRONMENT}" in
+              preview )
+                #KV_ID=$(toml get wrangler.toml env.preview.kv_namespaces[0].preview_id)
+                R2_ID=$(toml get wrangler.toml env.preview.r2_buckets[0].preview_bucket_name)
+              ;;
+              production )
+                #KV_ID=$(toml get wrangler.toml env.production.kv_namespaces[0].id)
+                R2_ID=$(toml get wrangler.toml env.production.r2_buckets[0].bucket_name)
+              ;;
+            esac
+            #KV_ID="${KV_ID%\"}"
+            #KV_ID="${KV_ID#\"}"
+            #echo "KV_ID=${KV_ID}" >> "${GITHUB_OUTPUT}"
+            #echo "Extracted KV ID ${KV_ID}"
+            R2_ID="${R2_ID%\"}"
+            R2_ID="${R2_ID#\"}"
+            echo "R2_ID=${R2_ID}" >> "${GITHUB_OUTPUT}"
+            echo "Extracted R2 ID ${R2_ID}"
+          else
+            echo "No wrangler.toml file found!"
+            exit 1
+          fi
+
+      - id: publish_bucket
+        name: Publish file to R2 bucket
+        if: ${{ env.CLOUDFLARE_R2_ENABLED == 'TRUE' }}
+        env:
+          WRANGLER_ENVIRONMENT: ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+          R2_ID: ${{ steps.get_bindings.outputs.R2_ID }}
+        run: |
+          cd "workers/${{ matrix.worker }}"
+          echo "Syncing files to R2 bucket ${R2_ID} for worker ${{ matrix.worker }} in the ${WRANGLER_ENVIRONMENT} environment"
+          if [[ -d "bucket" ]];
+          then
+            rclone sync --progress bucket "r2:${R2_ID}"
+          else
+            echo "No bucket directory found for worker ${{ matrix.worker }}, skipping..."
+          fi
+
+      - id: publish_worker
+        name: Publish worker using Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
+          packageManager: npm
+          workingDirectory: workers/${{ matrix.worker }}
+          preCommands: |
+            echo "Running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+            npm install
+            echo "Finished running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+          command: deploy --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+          postCommands: |
+            echo "Running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+            echo "Finished running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"

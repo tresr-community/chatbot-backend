@@ -1,0 +1,72 @@
+[default]
+
+# https://github.com/crate-ci/typos/issues/915
+locale = "en-au"
+
+extend-ignore-re = [
+    "^[ \t]*-----BEGIN PGP PUBLIC KEY BLOCK-----.*^[ \t]*-----END PGP PUBLIC KEY BLOCK-----",
+    "^[ \t]*initialHashedPassword[ \t]*=[ \t]*.*$"
+]
+
+[default.extend-words]
+
+# Crypto
+hodling = "hodling"
+decentralize = "decentralize"
+decentralized = "decentralized"
+decentralizing = "decentralizing"
+
+# HTML American spelling.
+analyzer = "analyzer"
+analyzers = "analyzers"
+analyzing = "analyzing"
+authorization = "authorization"
+center = "center"
+centers = "centers"
+customizations = "customizations"
+customize = "customize"
+customization = "customization"
+customizing = "customizing"
+initialize = "initialize"
+initialized = "initialized"
+initializing = "initializing"
+minimize = "minimize"
+minimized = "minimized"
+minimizing = "minimizing"
+optimisation = "optimisation"
+optimization = "optimization"
+optimizations = "optimizations"
+optimize = "optimize"
+optimized = "optimized"
+optimizing = "optimizing"
+organized = "organized"
+organization = "organization"
+organizations = "organizations"
+organize = "organize"
+prioritize = "prioritize"
+prioritized = "prioritized"
+prioritizing = "prioritizing"
+recognize = "recognize"
+recognized = "recognized"
+recognizing = "recognizing"
+serialize = "serialize"
+serialized = "serialized"
+serializing = "serializing"
+synchronize = "synchronize"
+unauthorized = "unauthorized"
+utilize = "utilize"
+utilized = "utilized"
+utilizing = "utilizing"
+
+[files]
+
+ignore-vcs = true
+
+extend-exclude = [
+  "*.drawio",
+  ".devenv",
+  ".direnv",
+  ".git",
+  "secrets",
+  "vendor"
+]
