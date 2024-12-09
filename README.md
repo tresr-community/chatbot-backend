@@ -51,4 +51,4 @@ The frontend worker embeds the UI Widget worker on he main page behind a button 
 
 The backend worker is managed in this repository.
 
-Once you have the chatbot backend running, access to the Worker is via Caddy at: [https://localhost:9000/api](https://localhost:9000/api) -> [http://localhost:9200](http://localhost:9200)
+Once you have the chatbot backend running, access to the Worker is via Caddy at: [https://localhost:9000/ai](https://localhost:9000/ai) -> [http://localhost:9200](http://localhost:9200)

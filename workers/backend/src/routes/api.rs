@@ -13,9 +13,9 @@ struct JsonPayload {
     message: String,
 }
 
-// handle_all serves all requests to the /api/* route.
+// handle_all serves all requests to the /ai/* route.
 // The function expects the path to be in the following format.
-// /api/{api_version}/{ai_backend}
+// /ai/{api_version}/{ai_backend}
 // The function will parse the path to extract the version and AI backend service.
 // For any non-existent or invalid path, the function will return a 404 Not Found response.
 pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<Response> {
