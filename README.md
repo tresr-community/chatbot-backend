@@ -1,10 +1,10 @@
-# Chatbot Backend
+# ChatBot Backend
 
 The NFTREASURE Community ChatBot
 
-This repository contains the source files for the Ron Jay [ChatBot](https://chatbot.nftreasure.community) backend.
+This repository contains the source files for the Ron Jay [ChatBot](https://chat.nftreasure.community) backend.
 
-This is an unofficial chatbot for the NFTREASURE Community and is not affiliated with the NFTREASURE project.
+This is an _unofficial_ chatbot for the NFTREASURE Community and is not affiliated with the NFTREASURE project.
 
 It is made with :heart: _love_ :heart: for the NFTREASURE Community.
 
@@ -45,7 +45,7 @@ The source code for the frontend worker can be found [here](https://github.com/N
 
 Access to the Frontend Worker is via Caddy at: [https://localhost:9000](https://localhost:9000) -> [http://localhost:9100](http://localhost:9100)
 
-The frontend worker embeds the UI Widget worker on he main page behind a button or offers a fullscreen page at /fullscreen.
+The frontend worker embeds the UI Widget worker on the main page behind a button or offers a fullscreen page at /fullscreen.
 
 ### Backend
 
