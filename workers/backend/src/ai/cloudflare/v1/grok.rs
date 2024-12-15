@@ -9,7 +9,7 @@
 /// --header 'cf-aig-authorization: Bearer CF_AI_GATEWAY_TOKEN' \
 /// --header 'Authorization: Bearer GROK_TOKEN' \
 /// --data '{
-///    "model": "grok-beta",
+///    "model": "grok-2-1212",
 ///    "messages": [
 ///        {
 ///            "role": "user",
@@ -27,7 +27,7 @@ use worker::*;
 use chatbot_utils::console_trace;
 
 const AI_ENDPOINT: &str = "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/nftreasure-community/grok";
-const AI_MODEL: &str = "grok-beta";
+const AI_MODEL: &str = "grok-2-1212";
 
 // Response structures matching Grok's format
 #[derive(Deserialize)]
