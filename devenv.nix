@@ -85,7 +85,7 @@ in
         "rustfmt"
         #"rust-analyzer"
       ];
-      rustflags = "--cfg getrandom_backend=\"wasm_js\"";
+      #rustflags = "--cfg getrandom_backend=\"wasm_js\"";
       targets = [ "wasm32-unknown-unknown" ];
     };
     javascript = {

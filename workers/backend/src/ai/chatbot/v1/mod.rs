@@ -2,8 +2,6 @@ use chatbot_utils::console_trace;
 
 use worker::*;
 
-use rand::prelude::IndexedRandom;
-
 use serde_json::json;
 
 static QUOTES: &[&str] = &[
@@ -49,11 +47,14 @@ static QUOTES: &[&str] = &[
 pub async fn handle_ai(message: &str) -> worker::Result<Response> {
     console_trace!("TRACE: Handling request to AI backend 'chatbot'");
 
-    // Select a random quote from the list.
-    let quote: String = QUOTES
-        .choose(&mut rand::rng())
-        .unwrap_or(&"Keep calm and carry on.")
-        .to_string();
+    // Select a pseudo-random quote from the list.
+    let quote: String = {
+        let now = std::time::SystemTime::now();
+        let duration = now.duration_since(std::time::UNIX_EPOCH).unwrap();
+        let seconds = duration.as_secs();
+        let index = (seconds % QUOTES.len() as u64) as usize;
+        QUOTES[index].to_string()
+    };
 
     // Construct a JSON payload to return.
     let payload = json!({
