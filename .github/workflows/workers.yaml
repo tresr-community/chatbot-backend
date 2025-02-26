@@ -157,7 +157,7 @@ jobs:
         name: Run Cargo tests
         run: |
           cargo --version
-          cargo test --verbose --workspace
+          cargo test --verbose --workspace --target ${{ matrix.target }}
 
   ##################################################
   # Generate a dynamic Matrix of Cloudflare Workers.
