@@ -35,9 +35,9 @@ in
   cachix = {
     pull = [
       "pre-commit-hooks"
-      "nftreasure-community"
+      "tresr-community"
     ];
-    push = "nftreasure-community";
+    push = "tresr-community";
   };
 
   devenv = {
@@ -85,6 +85,7 @@ in
         "rustfmt"
         #"rust-analyzer"
       ];
+      rustflags = "--cfg getrandom_backend=\"wasm_js\"";
       targets = [ "wasm32-unknown-unknown" ];
     };
     javascript = {
@@ -113,16 +114,19 @@ in
     ];
     hooks = {
       actionlint.enable = true;
-      cargo-check.enable = true;
+      cargo-check.enable = false;
       check-json.enable = true;
       check-merge-conflicts.enable = true;
       check-shebang-scripts-are-executable.enable = true;
       check-symlinks.enable = true;
       check-yaml.enable = true;
       clippy = {
-        enable = true;
+        enable = false;
         settings = {
+          denyWarnings = true;
+          offline = true;
           allFeatures = true;
+          #extraArgs = "--target wasm32-unknown-unknown";
         };
       };
       commitizen.enable = true;

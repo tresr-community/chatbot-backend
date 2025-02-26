@@ -7,7 +7,7 @@ The _Ron Jay_ AI prompt.
 - Download the whitepaper
 
 ```bash
-wget --mirror --convert-links --adjust-extension --page-requisites --no-parent http://docs.nftreasure.com
+wget --mirror --convert-links --adjust-extension --page-requisites --no-parent http://docs.tresr.com
 ```
 
 - Convert the whitepaper to markdown
@@ -15,7 +15,7 @@ wget --mirror --convert-links --adjust-extension --page-requisites --no-parent h
 ```bash
 mkdir markdown
 
-for FILE in $(find docs.nftreasure.com -name "*.html");
+for FILE in $(find docs.tresr.com -name "*.html");
 do
 
   echo "Converting $FILE to markdown"

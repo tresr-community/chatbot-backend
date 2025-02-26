@@ -2,7 +2,8 @@ use chatbot_utils::console_trace;
 
 use worker::*;
 
-use rand::seq::SliceRandom;
+use rand::prelude::IndexedRandom;
+
 use serde_json::json;
 
 static QUOTES: &[&str] = &[
@@ -50,7 +51,7 @@ pub async fn handle_ai(message: &str) -> worker::Result<Response> {
 
     // Select a random quote from the list.
     let quote: String = QUOTES
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .unwrap_or(&"Keep calm and carry on.")
         .to_string();
 

@@ -65,6 +65,9 @@ env:
   BRANCH_NAME_CURRENT: ${{ github.head_ref || github.ref_name }}
   BRANCH_NAME_DEFAULT: ${{ github.event.repository.default_branch }}
 
+  # Rust
+  RUSTFLAGS: '--cfg getrandom_backend="wasm_js"'
+
 jobs:
   ##################################################
   # Build and Test the Rust workspace
