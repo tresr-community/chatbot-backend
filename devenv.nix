@@ -10,18 +10,18 @@ let
   devPackages = with pkgs; [
     cargo-generate
     cargo-leptos
-    leptosfmt
     direnv
     figlet
     git
     hello
     jq
     just
-    nodePackages.wrangler
+    leptosfmt
     rclone
     toml-cli
     trivy
     worker-build
+    wrangler
     yq-go
   ];
 in
