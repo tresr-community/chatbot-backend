@@ -3,7 +3,7 @@
 name = "chatbot-backend"
 description = "tresr community chatbot backend"
 version = "1.0.0"
-edition = "2024"
+edition = "2021"
 license = "Unlicense"
 repository = "https://github.com/tresr-community/chatbot-backend"
 
