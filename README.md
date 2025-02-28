@@ -1,12 +1,12 @@
-# ChatBot Backend
+# Chat Bot Backend
 
-The NFTREASURE Community ChatBot
+The tresr community chatbot
 
-This repository contains the source files for the Ron Jay [ChatBot](https://chat.nftreasure.community) backend.
+This repository contains the source files for the Ron Jay [chatbot](https://chat.tresr.community) backend.
 
-This is an _unofficial_ chatbot for the NFTREASURE Community and is not affiliated with the NFTREASURE project.
+This is an _unofficial_ chatbot for the tresr community and is not affiliated with the tresr project.
 
-It is made with :heart: _love_ :heart: for the NFTREASURE Community.
+It is made with :heart: _love_ :heart: for the tresr community.
 
 ## How to run locally
 
@@ -41,7 +41,7 @@ One you have started the script from the frontend repository, access Caddy at: [
 
 The frontend worker is managed in a separate repository and is responsible for rendering the chatbot UI using Astro.
 
-The source code for the frontend worker can be found [here](https://github.com/NFTREASURE-Community/chatbot-frontend).
+The source code for the frontend worker can be found [here](https://github.com/tresr-community/chatbot-frontend).
 
 Access to the Frontend Worker is via Caddy at: [https://localhost:9000](https://localhost:9000) -> [http://localhost:9100](http://localhost:9100)
 

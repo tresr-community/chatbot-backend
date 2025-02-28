@@ -55,7 +55,7 @@ env:
 
   # Enable or disable Cloudflare KV and R2
   CLOUDFLARE_KV_ENABLED: FALSE
-  CLOUDFLARE_R2_ENABLED: TRUE
+  CLOUDFLARE_R2_ENABLED: FALSE
 
   # GitHUb details.
   ORGANISATION: ${{ github.repository_owner }}
@@ -64,6 +64,9 @@ env:
   # Works on pushes or PRs
   BRANCH_NAME_CURRENT: ${{ github.head_ref || github.ref_name }}
   BRANCH_NAME_DEFAULT: ${{ github.event.repository.default_branch }}
+
+  # Rust
+  #RUSTFLAGS: '--cfg getrandom_backend="wasm_js"'
 
 jobs:
   ##################################################
@@ -132,7 +135,7 @@ jobs:
         name: Run Cargo check
         run: |
           cargo --version
-          cargo check --verbose --workspace
+          cargo check --verbose --workspace --target ${{ matrix.target }}
 
       - id: cargo_fmt
         name: Run Cargo format
@@ -387,18 +390,18 @@ jobs:
             echo "Extracting KV_ID and R2_ID from wrangler.toml for ${WRANGLER_ENVIRONMENT} environment"
             case "${WRANGLER_ENVIRONMENT}" in
               preview )
-                #KV_ID=$(toml get wrangler.toml env.preview.kv_namespaces[0].preview_id)
-                R2_ID=$(toml get wrangler.toml env.preview.r2_buckets[0].preview_bucket_name)
+                KV_ID=$(toml get wrangler.toml env.preview.kv_namespaces[0].preview_id || echo "")
+                R2_ID=$(toml get wrangler.toml env.preview.r2_buckets[0].preview_bucket_name || echo "")
               ;;
               production )
-                #KV_ID=$(toml get wrangler.toml env.production.kv_namespaces[0].id)
-                R2_ID=$(toml get wrangler.toml env.production.r2_buckets[0].bucket_name)
+                KV_ID=$(toml get wrangler.toml env.production.kv_namespaces[0].id || echo "")
+                R2_ID=$(toml get wrangler.toml env.production.r2_buckets[0].bucket_name || echo "")
               ;;
             esac
-            #KV_ID="${KV_ID%\"}"
-            #KV_ID="${KV_ID#\"}"
-            #echo "KV_ID=${KV_ID}" >> "${GITHUB_OUTPUT}"
-            #echo "Extracted KV ID ${KV_ID}"
+            KV_ID="${KV_ID%\"}"
+            KV_ID="${KV_ID#\"}"
+            echo "KV_ID=${KV_ID}" >> "${GITHUB_OUTPUT}"
+            echo "Extracted KV ID ${KV_ID}"
             R2_ID="${R2_ID%\"}"
             R2_ID="${R2_ID#\"}"
             echo "R2_ID=${R2_ID}" >> "${GITHUB_OUTPUT}"

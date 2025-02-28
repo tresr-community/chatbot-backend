@@ -8,7 +8,7 @@
 # Global
 #########################
 
-name = "nftreasure-community-chatbot-backend"
+name = "tresr-community-chatbot-backend"
 
 account_id = "6d6a8fb1f9f3f38b7374d4974c0743cf"
 
@@ -55,8 +55,8 @@ ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["
 [[env.development.r2_buckets]]
 
 binding = "R2_ASSETS"
-bucket_name = "nftreasure-community-chatbot-preview"
-preview_bucket_name = "nftreasure-community-chatbot-preview"
+bucket_name = "tresr-community-chatbot-preview"
+preview_bucket_name = "tresr-community-chatbot-preview"
 
 #####################################################
 # Preview environment
@@ -66,7 +66,7 @@ preview_bucket_name = "nftreasure-community-chatbot-preview"
 
 # Ref: https://developers.cloudflare.com/workers/about/routes/
 routes = [
-	{ pattern = "preview.chat.nftreasure.community/ai/*", zone_name = "nftreasure.community" },
+	{ pattern = "preview.chat.tresr.community/ai/*", zone_name = "tresr.community" },
 ]
 
 [env.preview.build]
@@ -75,14 +75,14 @@ command = "../../scripts/build.sh api release"
 
 [env.preview.vars]
 
-ALLOWED_ORIGINS = '{ "allowed_origins": ["https://preview.nftreasure.community","https://preview.chat.nftreasure.community"] }'
+ALLOWED_ORIGINS = '{ "allowed_origins": ["https://preview.tresr.community","https://preview.chat.tresr.community"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
 
 [[env.preview.r2_buckets]]
 
 binding = "R2_ASSETS"
-bucket_name = "nftreasure-community-chatbot-preview"
-preview_bucket_name = "nftreasure-community-chatbot-preview"
+bucket_name = "tresr-community-chatbot-preview"
+preview_bucket_name = "tresr-community-chatbot-preview"
 
 #####################################################
 # Production environment
@@ -92,7 +92,7 @@ preview_bucket_name = "nftreasure-community-chatbot-preview"
 
 # Ref: https://developers.cloudflare.com/workers/about/routes/
 routes = [
-	{ pattern = "chat.nftreasure.community/ai/*", zone_name = "nftreasure.community" },
+	{ pattern = "chat.tresr.community/ai/*", zone_name = "tresr.community" },
 ]
 
 [env.production.build]
@@ -101,11 +101,11 @@ command = "../../scripts/build.sh api release"
 
 [env.production.vars]
 
-ALLOWED_ORIGINS = '{ "allowed_origins": ["https://nftreasure.community","https://chat.nftreasure.community"] }'
+ALLOWED_ORIGINS = '{ "allowed_origins": ["https://tresr.community","https://chat.tresr.community"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
 
 [[env.production.r2_buckets]]
 
 binding = "R2_ASSETS"
-bucket_name = "nftreasure-community-chatbot"
-preview_bucket_name = "nftreasure-community-chatbot"
+bucket_name = "tresr-community-chatbot"
+preview_bucket_name = "tresr-community-chatbot"

@@ -23,7 +23,3 @@ do
 
 done
 ```
-
-## AI Prompt
-
-TODO: Prompt goes here....

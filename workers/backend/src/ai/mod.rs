@@ -71,7 +71,7 @@ pub async fn handle_ai_service(
     // Build the request in the correct format for the selected backend.
     // Cloudflare AI Gateway is used for all AI services except Chatbot.
     let result = match (ai_version.as_str(), ai_backend.as_str()) {
-        // Quotes ChatBot
+        // Quotes chatbot
         ("v1", "chatbot") => chatbot::v1::handle_ai(message).await,
 
         // Google AI Studio

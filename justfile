@@ -53,7 +53,7 @@ check:
 		exit 1 ;
 	}
 
-	cargo check --workspace || {
+	cargo check --workspace --target wasm32-unknown-unknown || {
 		echo "Failed to check Cargo workspace." ;
 		exit 1 ;
 	}
@@ -116,7 +116,7 @@ rclone-worker worker:
 			echo "6. Enter your R2 credentials" ;
 			exit 1 ;
 		else
-			rclone sync --progress bucket r2:nftreasure-community-chatbot-preview || {
+			rclone sync --progress bucket r2:tresr-community-chatbot-preview || {
 				echo "Failed to sync bucket for worker {{ worker }}." ;
 				exit 1 ;
 			} ;
@@ -265,11 +265,6 @@ start-worker worker:
 
 	echo  "Starting Worker {{worker}} on port $PORT..."
 
-	export NODE_TLS_REJECT_UNAUTHORIZED=0
-	export SSL_CERT_DIR=/dev/null
-	export SSL_CERT_FILE=/dev/null
-	export WRANGLER_TLS_VERIFY=false
-
 	wrangler dev \
 		--env=development \
 		--remote=$REMOTE \
@@ -360,7 +355,7 @@ update:
 	echo "Checking all Workers..."
 	echo -e "#########################\n"
 
-	just -q  check
+	just -q check
 
 	echo  -e "\n#########################"
 	echo  "Updating all Workers..."
