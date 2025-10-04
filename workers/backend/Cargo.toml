@@ -27,5 +27,5 @@ chatbot-utils = { path = "../../crates/utils" }
 
 # External dependencies
 worker = "0.6.1"
-serde = { version = "1.0.227", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.143"
