@@ -19,6 +19,7 @@ let
     jq
     just
     leptosfmt
+    openssl
     rclone
     toml-cli
     trivy

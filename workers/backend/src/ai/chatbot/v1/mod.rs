@@ -65,7 +65,7 @@ pub async fn handle_ai(message: &str) -> worker::Result<Response> {
     let body = serde_json::to_string(&payload).unwrap();
 
     // Creating a new headers map
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Content-Type", "application/json; charset=utf-8")?;
 
     Response::ok(body).map(|resp| resp.with_headers(headers))

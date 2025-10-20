@@ -14,6 +14,9 @@ It is made with :heart: _love_ :heart: for the tresr community.
 # Get the dependencies
 just -q init
 
+# Update the dependencies
+just -q update
+
 # Login to Cloudflare
 just -q login
 
@@ -41,7 +44,7 @@ One you have started the script from the frontend repository, access Caddy at: [
 
 The frontend worker is managed in a separate repository and is responsible for rendering the chatbot UI using Astro.
 
-The source code for the frontend worker can be found [here](https://github.com/tresr-community/chatbot-frontend).
+The source code for the frontend worker can be found in the [chatbot-frontend](https://github.com/tresr-community/chatbot-frontend) repository.
 
 Access to the Frontend Worker is via Caddy at: [https://localhost:9000](https://localhost:9000) -> [http://localhost:9100](http://localhost:9100)
 

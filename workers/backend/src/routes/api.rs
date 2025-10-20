@@ -89,17 +89,15 @@ pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<R
         let result = validate_env_var(&ctx, name, type_str).await;
 
         // If the validation fails, return an error response.
-        if result.is_err() {
-            let err = result.as_ref().unwrap_err();
-            console_error!("ERROR: {}", &err);
+        if let Err(err) = &result {
+            console_error!("ERROR: {}", err);
             return Response::error(
                 format!(
                     "Internal Server Error: Failed to validate required variable {}. {}",
-                    name, &err
+                    name, err
                 ),
                 500,
             );
-        // If the validation passes, log an info message.
         } else {
             console_log!("INFO: {}", result.unwrap());
         }
