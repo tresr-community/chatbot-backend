@@ -5,7 +5,9 @@
   ...
 }:
 let
-  packages = with pkgs; [ ];
+  packages = with pkgs; [
+    bashInteractive
+  ];
 
   devPackages = with pkgs; [
     cargo-generate
@@ -34,7 +36,6 @@ in
 
   cachix = {
     pull = [
-      "pre-commit-hooks"
       "tresr-community"
     ];
     push = "tresr-community";
@@ -105,15 +106,10 @@ in
 
   git-hooks = {
     excludes = [
-      ".direnv/"
-      ".git/"
-      ".vscode/"
-      ".target/"
-      "vendor/"
-      "themes/"
     ];
     hooks = {
       actionlint.enable = true;
+      action-validator.enable = true;
       cargo-check.enable = false;
       check-json.enable = true;
       check-merge-conflicts.enable = true;
