@@ -1,11 +1,15 @@
 ---
+##################################################
+# Name: update.yaml
+# Description: Workflow for Updating Developer Environment
+##################################################
+
 name: Devenv Update
 
 # prettier-ignore
 on:  # yamllint disable-line rule:truthy
   schedule:
     - cron: "0 0 * * 0"
-
   workflow_dispatch:
 
 concurrency:
@@ -53,7 +57,7 @@ jobs:
     steps:
       - id: checkout_repository
         name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           lfs: false
           submodules: recursive
@@ -75,10 +79,6 @@ jobs:
           useDaemon: true
           skipPush: false
 
-      - id: cache
-        name: Magic Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
-
       - id: devenv_install
         name: Devenv install
         run: |
@@ -94,13 +94,18 @@ jobs:
         run: |
           devenv update
 
+      - id: devenv_test
+        name: Devenv test
+        run: |
+          devenv test
+
       - id: create_pull_request
         name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update devenv.lock"
-          title: "Update devenv.lock"
+          commit-message: "chore: Update devenv.lock"
+          title: "chore: Update devenv.lock"
           body: "This PR updates the devenv input dependencies"
           branch: "update-devenv-lock"
           base: ${{ env.BRANCH_NAME_DEFAULT }}

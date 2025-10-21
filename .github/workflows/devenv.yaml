@@ -1,22 +1,23 @@
 ---
+##################################################
+# Name: devenv.yaml
+# Description: Workflow for Developer Environment Testing
+##################################################
+
 name: Devenv
 
 # prettier-ignore
 on:  # yamllint disable-line rule:truthy
-  push:
-    branches:
-      - trunk
-
   pull_request:
     branches:
+      - "main"
+      - "master"
       - "trunk"
     paths:
       - .github/workflows/devenv.yaml
       - devenv.nix
       - devenv.yaml
       - devenv.lock
-      - devenv/**
-      - iac/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -63,7 +64,7 @@ jobs:
     steps:
       - id: checkout_repository
         name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           lfs: false
           submodules: recursive
@@ -85,19 +86,10 @@ jobs:
           useDaemon: true
           skipPush: false
 
-      - id: cache
-        name: Magic Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
-
       - id: devenv_install
         name: Devenv install
         run: |
           nix profile install --accept-flake-config nixpkgs#devenv
-
-      - id: devenv_gc
-        name: Devenv gc
-        run: |
-          devenv gc
 
       - id: devenv_test
         name: Devenv test
@@ -105,7 +97,7 @@ jobs:
           devenv test
 
       - id: devenv_status
-        name: Devenv (status)
+        name: Devenv status
         if: always()
         shell: devenv shell --quiet bash -- -e {0}
         env:
@@ -114,16 +106,17 @@ jobs:
           if [[ ${{ steps.devenv_test.outcome }} == 'success' ]];
           then
             RESULT="success"
-            DESCRIPTION="Devenv test passed"
+            DESCRIPTION="Devenv test passed!"
           else
             RESULT="failure"
-            DESCRIPTION="Devenv test failed"
+            DESCRIPTION="Devenv test failed!"
           fi
           gh api \
             repos/${{ github.repository }}/statuses/${{ github.sha }} \
             -f state=${RESULT} \
             -f context="${{ github.workflow }}" \
             -f description="${DESCRIPTION}" \
-            -f target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" || {
-              echo "Failed to report devenv status"; exit 1;
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" || {
+              echo "Failed to report devenv status!"
+              exit 1
             }

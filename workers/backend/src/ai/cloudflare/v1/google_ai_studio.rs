@@ -90,7 +90,7 @@ pub async fn call_ai(
 
     // Log headers setup
     console_trace!("TRACE: Setting up request headers");
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Content-Type", "application/json")?;
     headers.set(
         "cf-aig-authorization",

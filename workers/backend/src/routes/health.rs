@@ -8,7 +8,7 @@ pub async fn handle_get(_req: Request, _ctx: RouteContext<()>) -> Result<Respons
     console_trace!("TRACE: Request received for route 'health'");
 
     // Set up response headers.
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Content-Type", "text/plain; charset=utf-8")?;
     headers.set("Cache-Control", "no-store, no-cache, must-revalidate")?;
     headers.set("Pragma", "no-cache")?;

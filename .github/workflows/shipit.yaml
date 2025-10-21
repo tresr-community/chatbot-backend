@@ -1,4 +1,11 @@
 ---
+##################################################
+# Name: shipit.yaml
+# Description:
+#   Automatically taking care of chores.
+#   Why? Because YOLO.
+##################################################
+
 name: Ship it
 
 on:
@@ -32,12 +39,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Only run for PRs created by Dependabot or GitHub Actions
     if: |
       (github.event_name == 'pull_request_target' &&
        github.event.pull_request.user.login == 'dependabot[bot]') ||
       (github.event_name == 'pull_request' &&
        github.event.pull_request.user.login == 'github-actions[bot]' &&
-       contains(github.event.pull_request.title, 'Update devenv.lock') &&
+       contains(github.event.pull_request.title, 'bump devenv.lock') &&
        github.event.pull_request.head.repo.full_name == github.repository)
 
     steps:

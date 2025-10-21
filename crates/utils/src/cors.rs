@@ -80,7 +80,7 @@ pub async fn preflight(req: &Request, ctx: &RouteContext<()>) -> Result<Response
     let origin: &str = binding.as_str();
 
     // Add CORS headers to the response for OPTIONS requests.
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Access-Control-Allow-Origin", origin)?;
     headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")?;
     headers.set("Access-Control-Allow-Headers", "Content-Type")?;
