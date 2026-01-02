@@ -33,6 +33,13 @@ in
 
   env = {
     PROJECT = config.name;
+
+    # Chatbot Backend
+    inherit (config.secretspec.secrets)
+      AI_SECRET
+      CF_AI_GATEWAY_TOKEN
+      RAG_SECRET
+      ;
   };
 
   cachix = {
@@ -85,7 +92,7 @@ in
         "cargo"
         "clippy"
         "rustfmt"
-        #"rust-analyzer"
+        "rust-analyzer"
       ];
       #rustflags = "--cfg getrandom_backend=\"wasm_js\"";
       targets = [ "wasm32-unknown-unknown" ];
@@ -153,7 +160,13 @@ in
       };
       mixed-line-endings.enable = true;
       nixfmt-rfc-style.enable = true;
-      pre-commit-hook-ensure-sops.enable = true;
+      pre-commit-hook-ensure-sops = {
+        enable = true;
+        excludes = [
+          ".*\\.toml" # Ignore TOML files from sops
+          ".*\\.env*" # Ignore dotenv files from sops
+        ];
+      };
       prettier = {
         enable = true;
         settings = {

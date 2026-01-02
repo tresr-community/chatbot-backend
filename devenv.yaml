@@ -18,3 +18,8 @@ clean:
     - EDITOR
     - USER
 impure: true
+
+# Not setting provider or profile here to allow user to configure it
+# in the ~/.config/secretspec/config.toml
+secretspec:
+  enable: true

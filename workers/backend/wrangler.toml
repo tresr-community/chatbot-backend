@@ -14,8 +14,6 @@ account_id = "6d6a8fb1f9f3f38b7374d4974c0743cf"
 
 workers_dev = false
 
-usage_model = "bundled"
-
 compatibility_date = "2024-12-01"
 
 main = "build/worker/shim.mjs"
@@ -49,14 +47,29 @@ command = "../../scripts/build.sh api debug"
 
 [env.development.vars]
 
+CF_ACCOUNT_ID = "6d6a8fb1f9f3f38b7374d4974c0743cf"
+
 ALLOWED_ORIGINS = '{ "allowed_origins": ["https://localhost", "https://localhost:9000", "http://localhost:9100", "http://localhost:9200"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+RAG_SECRET = ""
+
+[env.development.ai]
+
+binding = "AI"
+remote = true
+
+[[env.development.vectorize]]
+
+binding = "TRESR_DOCS"
+index_name = "tresr-docs"
+remote = true
 
 [[env.development.r2_buckets]]
 
 binding = "R2_ASSETS"
 bucket_name = "tresr-community-chatbot-preview"
 preview_bucket_name = "tresr-community-chatbot-preview"
+remote = true
 
 #####################################################
 # Preview environment
@@ -75,8 +88,19 @@ command = "../../scripts/build.sh api release"
 
 [env.preview.vars]
 
+CF_ACCOUNT_ID = "6d6a8fb1f9f3f38b7374d4974c0743cf"
+
 ALLOWED_ORIGINS = '{ "allowed_origins": ["https://preview.tresr.community","https://preview.chat.tresr.community"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+
+[env.preview.ai]
+
+binding = "AI"
+
+[[env.preview.vectorize]]
+
+binding = "TRESR_DOCS"
+index_name = "tresr-docs"
 
 [[env.preview.r2_buckets]]
 
@@ -101,8 +125,19 @@ command = "../../scripts/build.sh api release"
 
 [env.production.vars]
 
+CF_ACCOUNT_ID = "6d6a8fb1f9f3f38b7374d4974c0743cf"
+
 ALLOWED_ORIGINS = '{ "allowed_origins": ["https://tresr.community","https://chat.tresr.community"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
+
+[env.production.ai]
+
+binding = "AI"
+
+[[env.production.vectorize]]
+
+binding = "TRESR_DOCS"
+index_name = "tresr-docs"
 
 [[env.production.r2_buckets]]
 

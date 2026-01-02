@@ -9,6 +9,9 @@ build/
 .astro/
 dist/
 
+# Ignore Cloudflare Worker dotenv
+workers/*/.env
+
 # logs
 caddy.log
 npm-debug.log*
