@@ -21,6 +21,7 @@ let
     leptosfmt
     openssl
     rclone
+    secretspec
     toml-cli
     trivy
     worker-build
