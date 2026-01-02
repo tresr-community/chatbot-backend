@@ -118,14 +118,14 @@ in
     hooks = {
       actionlint.enable = true;
       action-validator.enable = true;
-      cargo-check.enable = false;
+      cargo-check.enable = true;
       check-json.enable = true;
       check-merge-conflicts.enable = true;
       check-shebang-scripts-are-executable.enable = true;
       check-symlinks.enable = true;
       check-yaml.enable = true;
       clippy = {
-        enable = false;
+        enable = true;
         settings = {
           denyWarnings = true;
           offline = true;
