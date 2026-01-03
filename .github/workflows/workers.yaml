@@ -457,5 +457,10 @@ jobs:
         name: Publish worker using Wrangler v4
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN_WRANGLER }}
-        run: |
-          wrangler publish --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+        run: >-
+          wrangler
+          deploy
+          --cwd workers/${{ matrix.worker }}
+          --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+          --minify
+          --logpush
