@@ -427,18 +427,35 @@ jobs:
             echo "No bucket directory found for worker ${{ matrix.worker }}, skipping..."
           fi
 
-      - id: publish_worker
-        name: Publish worker using Wrangler
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
-          packageManager: npm
-          workingDirectory: workers/${{ matrix.worker }}
-          preCommands: |
-            echo "Running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-            npm install
-            echo "Finished running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-          command: deploy --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
-          postCommands: |
-            echo "Running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-            echo "Finished running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+      # BUG: Currently broken.
+      #- id: publish_worker
+      #  name: Publish worker using Wrangler
+      #  uses: cloudflare/wrangler-action@v3.14.1
+      #  with:
+      #    wranglerVersion: "4"
+      #    apiToken: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
+      #    packageManager: bun
+      #    workingDirectory: workers/${{ matrix.worker }}
+      #    preCommands: |
+      #      echo "Running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+      #      bun install
+      #      echo "Finished running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+      #    command: deploy --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+      #    postCommands: |
+      #      echo "Running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+      #      echo "Finished running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+
+      # TODO: Remove when wrangler-action is fixed.
+      - id: wrangler_install
+        name: Install Wrangler v4
+        run: |
+          npm install --save-dev wrangler@4
+          wrangler --version
+
+      # TODO: Remove when wrangler-action is fixed.
+      - id: wrangler_publish
+        name: Publish worker using Wrangler v4
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN_WRANGLER }}
+        run: |
+          wrangler publish --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
