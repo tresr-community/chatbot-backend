@@ -250,6 +250,58 @@ in
     };
   };
 
+  scripts = {
+    chatbot-backend = {
+      package = pkgs.bash;
+      description = "Perform actions on the chatbot backend.";
+      exec = ''
+        ACTION="''${1:-help}"
+        clear
+        case "''${ACTION,,}" in
+          "help" )
+            USAGE="
+            ----------------
+            Usage
+            ----------------
+
+            chatbot-backend <action>
+
+            ----------------
+            Actions
+            ----------------
+
+            start - Start the chatbot backend
+            stop - Stop the chatbot backend
+            tail - Tail the chatbot backend logs
+            update - Update the chatbot backend
+            "
+            echo "$USAGE"
+          ;;
+          "start" )
+            echo "Starting chatbot backend..."
+            just start
+            just tail
+          ;;
+          "stop" )
+            echo "Stopping chatbot backend..."
+            just stop
+          ;;
+          "tail" )
+            echo "Tailing chatbot backend logs..."
+            just tail
+          ;;
+          "update" )
+            echo "Updating chatbot backend..."
+            just update
+          ;;
+          * )
+            echo "Invalid action"
+          ;;
+        esac
+      '';
+    };
+  };
+
   enterTest = ''
     echo "Running devenv tests..."
   '';

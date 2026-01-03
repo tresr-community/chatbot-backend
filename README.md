@@ -34,11 +34,14 @@ just -q stop
 
 There are a few URLs that you can use to test the chatbot locally depending on the worker.
 
-### Caddy
+### Proxy
 
 Caddy Server can be used to proxy the chatbot requests to the correct worker.
 
-One you have started the script from the frontend repository, access Caddy at: [https://localhost:9000](https://localhost:9000)
+One you have started the script from the frontend repository, access Caddy at: [https://localhost:9000](https://localhost:9000) this will then direct to either;
+
+- [http://localhost:9100](http://localhost:9100) for the frontend worker
+- [http://localhost:9200](http://localhost:9200) for the backend worker
 
 ### Frontend
 

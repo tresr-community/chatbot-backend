@@ -81,7 +81,8 @@ pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<R
 
     // Define the required environment variables.
     let mut required_variables = HashMap::new();
-    required_variables.insert("AI_SECRET", "string");
+    required_variables.insert("AI_SECRET", "string"); // Shared secret with frontend/backend
+    required_variables.insert("RAG_SECRET", "string"); // Cloudflare Vectorize secret
 
     // Validate required environment variables.
     for (name, type_str) in required_variables.iter() {
@@ -126,11 +127,23 @@ pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<R
         return Response::error("Bad Request: 'message' data is missing", 400);
     }
 
-    // Get the AI Secret from the Cloudflare Worker environment variables.
-    let ai_secret = ctx
-        .var("AI_SECRET")
-        .map_err(|_| Error::RustError("ERROR: AI_SECRET is not defined.".to_string()))?
-        .to_string();
+    // Extract Authorization header.
+    let auth_opt = req.headers().get("Authorization");
+    let auth_header = match auth_opt {
+        Ok(Some(header)) => header,
+        _ => String::new(), // None/missing/err → empty.
+    };
+
+    let ai_secret = auth_header
+        .strip_prefix("Bearer ")
+        .map(|stripped| stripped.to_owned())
+        .unwrap_or(auth_header);
+
+    if ai_secret.is_empty() {
+        console_error!("ERROR: Unauthorized - missing/invalid Authorization");
+        return Response::error("Unauthorized", 401);
+    }
+    console_trace!("TRACE: AI_SECRET validated (length {})", ai_secret.len());
 
     // Make the AI service call to the selected backend and get the response.
     let mut ai_response =

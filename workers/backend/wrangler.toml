@@ -51,7 +51,6 @@ CF_ACCOUNT_ID = "6d6a8fb1f9f3f38b7374d4974c0743cf"
 
 ALLOWED_ORIGINS = '{ "allowed_origins": ["https://localhost", "https://localhost:9000", "http://localhost:9100", "http://localhost:9200"] }'
 ENABLED_AI_BACKENDS = '{ "backends": { "chatbot": ["v1"], "google-ai-studio": ["v1"], "grok": ["v1"] } }'
-RAG_SECRET = ""
 
 [env.development.ai]
 
