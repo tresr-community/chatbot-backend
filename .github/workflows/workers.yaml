@@ -450,14 +450,15 @@ jobs:
         name: Install Wrangler v4
         run: |
           npm install --save-dev wrangler@4
-          wrangler --version
+          npx wrangler --version
 
       # TODO: Remove when wrangler-action is fixed.
       - id: wrangler_publish
         name: Publish worker using Wrangler v4
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN_WRANGLER }}
+          CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
         run: >-
+          npx
           wrangler
           deploy
           --cwd workers/${{ matrix.worker }}
