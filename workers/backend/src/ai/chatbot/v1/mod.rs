@@ -2,6 +2,7 @@ use chatbot_utils::console_trace;
 
 use worker::*;
 
+use js_sys::Date;
 use serde_json::json;
 
 static QUOTES: &[&str] = &[
@@ -49,9 +50,8 @@ pub async fn handle_ai(message: &str) -> worker::Result<Response> {
 
     // Select a pseudo-random quote from the list.
     let quote: String = {
-        let now = std::time::SystemTime::now();
-        let duration = now.duration_since(std::time::UNIX_EPOCH).unwrap();
-        let seconds = duration.as_secs();
+        let now_ms = Date::now();
+        let seconds = (now_ms / 1000.0) as u64;
         let index = (seconds % QUOTES.len() as u64) as usize;
         QUOTES[index].to_string()
     };

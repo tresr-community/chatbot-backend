@@ -58,3 +58,18 @@ The frontend worker embeds the UI Widget worker on the main page behind a button
 The backend worker is managed in this repository.
 
 Once you have the chatbot backend running, access to the Worker is via Caddy at: [https://localhost:9000/ai](https://localhost:9000/ai) -> [http://localhost:9200](http://localhost:9200)
+
+### CLI
+
+Once up-and-running, to test from the CLI run;
+
+```bash
+curl \
+    --insecure \
+    --request POST \
+    --header "Origin: https://localhost:9000" \
+    --header "Content-Type: application/json" \
+    --header "Authorization: Bearer ${AI_SECRET}" \
+    --data '{"message": "Hello, world!"}' \
+    https://localhost:9000/ai/v1/chatbot
+```
