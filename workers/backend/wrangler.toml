@@ -18,7 +18,7 @@ compatibility_date = "2024-12-01"
 
 main = "build/worker/shim.mjs"
 
-logpush = true
+logpush = false
 
 [placement]
 
