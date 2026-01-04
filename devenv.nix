@@ -24,6 +24,7 @@ let
     secretspec
     toml-cli
     trivy
+    wasm-pack
     worker-build
     wrangler
     yq-go

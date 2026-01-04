@@ -311,44 +311,32 @@ jobs:
           persist-credentials: true
           submodules: recursive
 
-      - id: setup_rust
-        name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - id: install_nix
+        name: "Install Nix ❄️"
+        uses: cachix/install-nix-action@v31
         with:
-          target: ${{ matrix.target }}
-          toolchain: ${{ matrix.toolchain }}
-          components: rustfmt, clippy
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          enable_kvm: true
 
-      - id: cache_rust_artifacts
-        uses: actions/cache@v4
+      - id: cachix
+        name: "Enable Cachix ❄️"
+        uses: cachix/cachix-action@v16
+        if: vars.CACHIX_CACHE_NAME != ''
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          useDaemon: true
+          skipPush: false
 
-      - id: setup_rust_deps
-        name: Setup Rust dependencies
-        run: >-
-          cargo install
-          toml-cli
-          wasm-opt
-          wasm-pack
-          worker-build
-          || true
-
-      - id: setup_other_deps
-        name: Setup other dependencies
+      - id: devenv_install
+        name: Devenv install
         run: |
-          sudo apt-get update
-          sudo apt-get install -y nodejs npm rclone
+          nix profile install --accept-flake-config nixpkgs#devenv
 
       - id: rclone_config
         name: Create rclone configuration
         if: ${{ env.CLOUDFLARE_R2_ENABLED == 'TRUE' }}
+        shell: devenv shell --quiet bash -- -e {0}
         run: |
           mkdir -p ~/.config/rclone
           cat << EOF > ~/.config/rclone/rclone.conf
@@ -427,34 +415,9 @@ jobs:
             echo "No bucket directory found for worker ${{ matrix.worker }}, skipping..."
           fi
 
-      # BUG: Currently broken.
-      #- id: publish_worker
-      #  name: Publish worker using Wrangler
-      #  uses: cloudflare/wrangler-action@v3.14.1
-      #  with:
-      #    wranglerVersion: "4"
-      #    apiToken: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
-      #    packageManager: bun
-      #    workingDirectory: workers/${{ matrix.worker }}
-      #    preCommands: |
-      #      echo "Running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-      #      bun install
-      #      echo "Finished running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-      #    command: deploy --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
-      #    postCommands: |
-      #      echo "Running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-      #      echo "Finished running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-
-      # TODO: Remove when wrangler-action is fixed.
-      - id: wrangler_install
-        name: Install Wrangler v4
-        run: |
-          npm install --save-dev wrangler@4
-          npx wrangler --version
-
-      # TODO: Remove when wrangler-action is fixed.
-      - id: wrangler_publish
-        name: Publish worker using Wrangler v4
+      - id: publish_worker
+        name: Publish worker using Wrangler
+        shell: devenv shell --quiet bash -- -e {0}
         env:
           CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
         run: >-
