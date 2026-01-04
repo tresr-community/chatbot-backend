@@ -166,6 +166,7 @@ in
         excludes = [
           ".*\\.toml" # Ignore TOML files from sops
           ".*\\.env*" # Ignore dotenv files from sops
+          ".*\\.json" # Ignore JSON files from sops
         ];
       };
       prettier = {
