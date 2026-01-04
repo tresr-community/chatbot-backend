@@ -7,6 +7,9 @@
 name: Workers
 
 on:
+  # Allow manual runs
+  workflow_dispatch:
+
   # Automatically run anytime there
   # is a push to the default branch
   push:
@@ -358,7 +361,8 @@ jobs:
       - id: get_environment
         name: Get Environment
         run: |
-          if [[ "${{ env.BRANCH_NAME_CURRENT }}" == "${{ env.BRANCH_NAME_DEFAULT }}" ]];
+          # Only deploy to production on pushes to the default branch
+          if [[ "${{ github.event_name }}" == "push" && "${{ env.BRANCH_NAME_CURRENT }}" == "${{ env.BRANCH_NAME_DEFAULT }}" ]];
           then
             echo "Environment: Production"
             echo "WRANGLER_ENVIRONMENT=production" >> "${GITHUB_OUTPUT}"
