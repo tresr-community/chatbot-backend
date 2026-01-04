@@ -55,7 +55,7 @@ pub async fn handle_ai_service(
 
     // Confirm that the provided AI Secret matches the environment variable.
     if ai_secret != ai_secret_env {
-        console_error!("ERROR: Unauthorized");
+        console_error!("ERROR: Unauthorized access attempt to ai route");
         return Response::error("Unauthorized", 401);
     }
 

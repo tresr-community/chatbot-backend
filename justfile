@@ -461,6 +461,70 @@ stop:
 	echo "Workers are now stopping..."
 	echo -e "#########################\n"
 
+# Shortcut to cleanup all build caches
+clean:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	echo -e "\n#########################"
+	echo -e "Cleaning up build caches..."
+	echo -e "#########################\n"
+
+	cargo clean --verbose
+
+	rm -rf ~/.cargo/registry/cache ~/.cargo/git || true
+
+	# Remove any local rust-analyzer caches (safe even if none exist)
+	find . -name ".rust-analyzer*" -type d -prune -exec rm -rf {} + 2>/dev/null || true
+
+	# Global cache cleanup (do this manually if the above doesn't suffice; restarts rust-analyzer)
+	rm -rf ~/.cache/rust-analyzer || true
+
+	# Re-generate metadata
+	cargo metadata >/dev/null 2>&1
+	cargo check --workspace
+
+# Diagnose rust-analyzer/Cargo workspace issues.
+diagnose:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	echo -e "\n#########################"
+	echo "Rust Toolchain Info"
+	echo -e "#########################\n"
+
+	rustc --version
+	cargo --version
+	rust-analyzer --version || echo "rust-analyzer NOT FOUND (enter devenv shell!)"
+
+	echo -e "\n#########################"
+	echo "Cargo Metadata (workspace)"
+	echo -e "#########################\n"
+
+	cargo metadata --format-version 1 | jq 'del(.packages[] | select(.id | contains("virtual")))' || cargo metadata
+
+	echo -e "\n#########################"
+	echo "Rust Analyzer Diagnostics"
+	echo -e "#########################\n"
+
+	rust-analyzer prime-caches . -v
+
+	rust-analyzer diagnostics . -v
+
+	rust-analyzer analysis-stats . -v
+
+	echo -e "\n#########################"
+	echo "Workspace Root Check"
+	echo -e "#########################\n"
+
+	echo "Root Cargo.toml: $(test -f Cargo.toml && echo 'OK' || echo 'MISSING')"
+	echo "Members: crates/utils OK? $(test -d crates/utils && echo 'OK' || echo 'MISSING')"
+	echo "Members: workers/backend OK? $(test -d workers/backend && echo 'OK' || echo 'MISSING')"
+
+	echo -e "\n#########################"
+	echo "Next: Enter 'devenv shell', run 'cargo check --workspace', reload editor."
+	echo -e "#########################\n"
+
 # Shortcut to tail all logs.
 tail:
 	#!/usr/bin/env bash

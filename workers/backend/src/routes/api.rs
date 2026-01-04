@@ -1,3 +1,5 @@
+// Route handlers for /*
+
 use crate::ai;
 
 use chatbot_utils::common::{parse_path, validate_env_var};
@@ -13,9 +15,9 @@ struct JsonPayload {
     message: String,
 }
 
-// handle_all serves all requests to the /ai/* route.
+// handle_all serves all requests to the /* route.
 // The function expects the path to be in the following format.
-// /ai/{api_version}/{ai_backend}
+// /{api_version}/{ai_backend}
 // The function will parse the path to extract the version and AI backend service.
 // For any non-existent or invalid path, the function will return a 404 Not Found response.
 pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<Response> {
@@ -82,7 +84,6 @@ pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<R
     // Define the required environment variables.
     let mut required_variables = HashMap::new();
     required_variables.insert("AI_SECRET", "string"); // Shared secret with frontend/backend
-    required_variables.insert("RAG_SECRET", "string"); // Cloudflare Vectorize secret
 
     // Validate required environment variables.
     for (name, type_str) in required_variables.iter() {
