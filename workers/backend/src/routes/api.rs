@@ -85,6 +85,16 @@ pub async fn handle_all(req: Request, ctx: RouteContext<()>) -> worker::Result<R
     let mut required_variables = HashMap::new();
     required_variables.insert("AI_SECRET", "string"); // Shared secret with frontend/backend
 
+    // If the backend is Grok, we need a GROK_TOKEN
+    if ai_backend == "grok" {
+        required_variables.insert("GROK_TOKEN", "string");
+    }
+
+    // If the backend is Google AI Studio, we need a GOOGLE_AI_STUDIO_TOKEN
+    if ai_backend == "google-ai-studio" {
+        required_variables.insert("GOOGLE_AI_STUDIO_TOKEN", "string");
+    }
+
     // Validate required environment variables.
     for (name, type_str) in required_variables.iter() {
         // Validate the environment variable.
