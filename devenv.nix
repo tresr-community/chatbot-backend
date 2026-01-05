@@ -21,8 +21,10 @@ let
     leptosfmt
     openssl
     rclone
+    secretspec
     toml-cli
     trivy
+    wasm-pack
     worker-build
     wrangler
     yq-go
@@ -33,6 +35,13 @@ in
 
   env = {
     PROJECT = config.name;
+
+    # Chatbot Backend
+    inherit (config.secretspec.secrets)
+      AI_SECRET
+      CF_AI_GATEWAY_TOKEN
+      RAG_SECRET
+      ;
   };
 
   cachix = {
@@ -85,7 +94,7 @@ in
         "cargo"
         "clippy"
         "rustfmt"
-        #"rust-analyzer"
+        "rust-analyzer"
       ];
       #rustflags = "--cfg getrandom_backend=\"wasm_js\"";
       targets = [ "wasm32-unknown-unknown" ];
@@ -111,14 +120,14 @@ in
     hooks = {
       actionlint.enable = true;
       action-validator.enable = true;
-      cargo-check.enable = false;
+      cargo-check.enable = true;
       check-json.enable = true;
       check-merge-conflicts.enable = true;
       check-shebang-scripts-are-executable.enable = true;
       check-symlinks.enable = true;
       check-yaml.enable = true;
       clippy = {
-        enable = false;
+        enable = true;
         settings = {
           denyWarnings = true;
           offline = true;
@@ -153,7 +162,14 @@ in
       };
       mixed-line-endings.enable = true;
       nixfmt-rfc-style.enable = true;
-      pre-commit-hook-ensure-sops.enable = true;
+      pre-commit-hook-ensure-sops = {
+        enable = true;
+        excludes = [
+          ".*\\.toml" # Ignore TOML files from sops
+          ".*\\.env*" # Ignore dotenv files from sops
+          ".*\\.json" # Ignore JSON files from sops
+        ];
+      };
       prettier = {
         enable = true;
         settings = {
@@ -233,6 +249,58 @@ in
           ];
         };
       };
+    };
+  };
+
+  scripts = {
+    chatbot-backend = {
+      package = pkgs.bash;
+      description = "Perform actions on the chatbot backend.";
+      exec = ''
+        ACTION="''${1:-help}"
+        clear
+        case "''${ACTION,,}" in
+          "help" )
+            USAGE="
+            ----------------
+            Usage
+            ----------------
+
+            chatbot-backend <action>
+
+            ----------------
+            Actions
+            ----------------
+
+            start - Start the chatbot backend
+            stop - Stop the chatbot backend
+            tail - Tail the chatbot backend logs
+            update - Update the chatbot backend
+            "
+            echo "$USAGE"
+          ;;
+          "start" )
+            echo "Starting chatbot backend..."
+            just start
+            just tail
+          ;;
+          "stop" )
+            echo "Stopping chatbot backend..."
+            just stop
+          ;;
+          "tail" )
+            echo "Tailing chatbot backend logs..."
+            just tail
+          ;;
+          "update" )
+            echo "Updating chatbot backend..."
+            just update
+          ;;
+          * )
+            echo "Invalid action"
+          ;;
+        esac
+      '';
     };
   };
 

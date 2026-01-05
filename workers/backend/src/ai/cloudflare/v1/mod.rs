@@ -8,13 +8,13 @@
 pub mod google_ai_studio;
 pub mod grok;
 pub mod prompt;
+pub mod rag;
 
 use chatbot_utils::console_trace;
 
 use serde_json::json;
 use worker::*;
 
-// Refactored enum to use BoxFuture
 enum AIResponse {
     GoogleAI(String),
     Grok(String),
@@ -45,13 +45,24 @@ pub async fn handle_ai(
     // Get the system prompt for the AI service.
     let prompt = prompt::get_system_prompt(ai_type)?;
 
+    // Argument prompt with Vector Database content (RAG)
+    let env = &ctx.env;
+    let user_context = rag::augment_prompt(env, message).await?;
+
+    // Build the full prompt to the AI
+    let full_prompt = if user_context != "No relevant documentation found." {
+        format!("{}\n\n## Relevant Documentation\n{}", prompt, user_context)
+    } else {
+        prompt.to_string()
+    };
+
     // Handle the response directly
     let ai_result: AIResponse = match ai_type {
-        "google-ai-studio" => match google_ai_studio::call_ai(prompt, message, ctx).await {
+        "google-ai-studio" => match google_ai_studio::call_ai(&full_prompt, message, ctx).await {
             Ok(text) => AIResponse::GoogleAI(text),
             Err(e) => AIResponse::Invalid(e),
         },
-        "grok" => match grok::call_ai(prompt, message, ctx).await {
+        "grok" => match grok::call_ai(&full_prompt, message, ctx).await {
             Ok(text) => AIResponse::Grok(text),
             Err(e) => AIResponse::Invalid(e),
         },

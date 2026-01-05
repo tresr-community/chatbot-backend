@@ -7,6 +7,9 @@
 name: Workers
 
 on:
+  # Allow manual runs
+  workflow_dispatch:
+
   # Automatically run anytime there
   # is a push to the default branch
   push:
@@ -67,6 +70,15 @@ env:
 
   # Rust
   #RUSTFLAGS: '--cfg getrandom_backend="wasm_js"'
+
+  # SecretSpec
+  SECRETSPEC_PROVIDER: env
+
+  # Dummy secrets needed for SecretSpec tests to pass.
+  # These are only needed for local development or for use by Wrangler.
+  AI_SECRET: DUMMY_AI_SECRET
+  RAG_SECRET: DUMMY_RAG_SECRET
+  CF_AI_GATEWAY_TOKEN: DUMMY_CF_AI_GATEWAY_TOKEN
 
 jobs:
   ##################################################
@@ -311,44 +323,38 @@ jobs:
           persist-credentials: true
           submodules: recursive
 
-      - id: setup_rust
-        name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - id: install_nix
+        name: "Install Nix ❄️"
+        uses: cachix/install-nix-action@v31
         with:
-          target: ${{ matrix.target }}
-          toolchain: ${{ matrix.toolchain }}
-          components: rustfmt, clippy
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          enable_kvm: true
 
-      - id: cache_rust_artifacts
-        uses: actions/cache@v4
+      - id: cachix
+        name: "Enable Cachix ❄️"
+        uses: cachix/cachix-action@v16
+        if: vars.CACHIX_CACHE_NAME != ''
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          useDaemon: true
+          skipPush: false
 
-      - id: setup_rust_deps
-        name: Setup Rust dependencies
-        run: >-
-          cargo install
-          toml-cli
-          wasm-opt
-          wasm-pack
-          worker-build
-          || true
-
-      - id: setup_other_deps
-        name: Setup other dependencies
+      - id: devenv_install
+        name: Devenv install
         run: |
-          sudo apt-get update
-          sudo apt-get install -y nodejs npm rclone
+          nix profile install --accept-flake-config nixpkgs#devenv
+
+      - id: secretspec_check
+        name: "Secretspec Check 🔐"
+        shell: devenv shell --quiet bash -- -e {0}
+        run: |
+          secretspec check
 
       - id: rclone_config
         name: Create rclone configuration
         if: ${{ env.CLOUDFLARE_R2_ENABLED == 'TRUE' }}
+        shell: devenv shell --quiet bash -- -e {0}
         run: |
           mkdir -p ~/.config/rclone
           cat << EOF > ~/.config/rclone/rclone.conf
@@ -370,7 +376,8 @@ jobs:
       - id: get_environment
         name: Get Environment
         run: |
-          if [[ "${{ env.BRANCH_NAME_CURRENT }}" == "${{ env.BRANCH_NAME_DEFAULT }}" ]];
+          # Only deploy to production on pushes to the default branch
+          if [[ "${{ github.event_name }}" == "push" && "${{ env.BRANCH_NAME_CURRENT }}" == "${{ env.BRANCH_NAME_DEFAULT }}" ]];
           then
             echo "Environment: Production"
             echo "WRANGLER_ENVIRONMENT=production" >> "${GITHUB_OUTPUT}"
@@ -429,16 +436,12 @@ jobs:
 
       - id: publish_worker
         name: Publish worker using Wrangler
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
-          packageManager: npm
-          workingDirectory: workers/${{ matrix.worker }}
-          preCommands: |
-            echo "Running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-            npm install
-            echo "Finished running preCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-          command: deploy --minify --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
-          postCommands: |
-            echo "Running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
-            echo "Finished running postCommands for ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }} environment"
+        shell: devenv shell --quiet bash -- -e {0}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_TOKEN_WRANGLER }}
+        run: >-
+          wrangler
+          deploy
+          --cwd workers/${{ matrix.worker }}
+          --env ${{ steps.get_environment.outputs.WRANGLER_ENVIRONMENT }}
+          --minify

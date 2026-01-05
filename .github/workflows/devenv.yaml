@@ -38,6 +38,15 @@ env:
   # Nix
   NIXPKGS_ALLOW_UNFREE: 1
 
+  # SecretSpec
+  SECRETSPEC_PROVIDER: env
+
+  # Dummy secrets needed for SecretSpec tests to pass.
+  # These are only needed for local development or for use by Wrangler.
+  AI_SECRET: DUMMY_AI_SECRET
+  RAG_SECRET: DUMMY_RAG_SECRET
+  CF_AI_GATEWAY_TOKEN: DUMMY_CF_AI_GATEWAY_TOKEN
+
 defaults:
   run:
     shell: bash
@@ -90,6 +99,12 @@ jobs:
         name: Devenv install
         run: |
           nix profile install --accept-flake-config nixpkgs#devenv
+
+      - id: secretspec_check
+        name: "Secretspec Check 🔐"
+        shell: devenv shell --quiet bash -- -e {0}
+        run: |
+          secretspec check
 
       - id: devenv_test
         name: Devenv test

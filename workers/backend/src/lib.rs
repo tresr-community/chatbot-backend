@@ -22,6 +22,15 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
 
     let path = req.path();
 
+    // Index the Vector Database
+    if path.starts_with("/ai/admin/rag-index") {
+        return Router::new()
+            .post_async(path.as_str(), admin::handle_rag_index)
+            .run(req, env)
+            .await;
+    }
+
+    // Handle API requests
     if path.starts_with("/ai/") {
         return Router::new()
             .post_async(path.as_str(), api::handle_all)
@@ -29,6 +38,7 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
             .await;
     }
 
+    // Handle health checks
     Router::new()
         .get_async("/health", health::handle_get)
         .or_else_any_method_async("/", handle_404)

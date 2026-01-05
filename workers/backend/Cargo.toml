@@ -26,6 +26,10 @@ crate-type = ["cdylib"]
 chatbot-utils = { path = "../../crates/utils" }
 
 # External dependencies
-worker = "0.7.0"
+worker = "0.7.2"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.143"
+serde_json = "1.0.148"
+base64 = "0.22.1"
+tokio = { version = "1.48.0", features = ["rt"] }
+uuid = { version = "1.19", features = ["v4", "js"] }
+nanohtml2text = "0.1"

@@ -9,6 +9,9 @@ build/
 .astro/
 dist/
 
+# Ignore Cloudflare Worker dotenv
+workers/*/.env
+
 # logs
 caddy.log
 npm-debug.log*
@@ -82,3 +85,4 @@ devenv.local.nix
 .env.preview
 .env.production
 .dev.vars
+

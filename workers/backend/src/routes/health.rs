@@ -1,3 +1,5 @@
+// Route handler for /health
+
 use chatbot_utils::console_trace;
 
 use worker::*;
