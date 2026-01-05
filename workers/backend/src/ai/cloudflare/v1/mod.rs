@@ -48,7 +48,13 @@ pub async fn handle_ai(
     // Argument prompt with Vector Database content (RAG)
     let env = &ctx.env;
     let user_context = rag::augment_prompt(env, message).await?;
-    let full_prompt = format!("{}\n\n{}", prompt, user_context);
+
+    // Build the full prompt to the AI
+    let full_prompt = if user_context != "No relevant documentation found." {
+        format!("{}\n\n## Relevant Documentation\n{}", prompt, user_context)
+    } else {
+        prompt.to_string()
+    };
 
     // Handle the response directly
     let ai_result: AIResponse = match ai_type {

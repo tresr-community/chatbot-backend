@@ -30,7 +30,10 @@ struct VectorizeQueryResponse {
 }
 
 #[derive(serde::Deserialize)]
+#[allow(dead_code)]
 struct VectorizeMatch {
+    id: String,
+    score: f64,
     metadata: Option<Value>,
 }
 
@@ -268,8 +271,8 @@ pub async fn augment_prompt(env: &Env, message: &str) -> Result<String> {
 
     let input = json!({
         "vector": emb,
-        "top_k": 3,
-        "returnMetadata": "true" // Explicitly ask for metadata
+        "topK": 3,
+        "returnMetadata": "all"
     });
 
     let headers = Headers::new();
@@ -289,11 +292,30 @@ pub async fn augment_prompt(env: &Env, message: &str) -> Result<String> {
 
     let mut resp = Fetch::Request(req).send().await?;
 
-    // FIX: Parse the Cloudflare envelope {"result": ... }
-    let body: CfApiResponse<VectorizeQueryResponse> = resp.json().await?;
+    #[derive(serde::Deserialize)]
+    struct CfVectorizeResponse {
+        #[serde(default)]
+        success: bool,
+        #[serde(default)]
+        errors: Vec<serde_json::Value>,
+        #[serde(default)]
+        result: Option<VectorizeQueryResponse>,
+    }
+
+    let cf_resp: CfVectorizeResponse = resp.json().await?;
+
+    if !cf_resp.success || cf_resp.result.is_none() {
+        console_warn!(
+            "Vectorize query returned no results or errors: {:?}",
+            cf_resp.errors
+        );
+        return Ok("No relevant documentation found.".to_string());
+    }
+
+    let body = cf_resp.result.unwrap();
 
     let mut context = String::new();
-    for match_ in body.result.matches {
+    for match_ in body.matches {
         if let Some(meta) = match_.metadata {
             let text = meta.get("text").and_then(|t| t.as_str()).unwrap_or("");
             let url = meta.get("url").and_then(|u| u.as_str()).unwrap_or("");
