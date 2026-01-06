@@ -42,16 +42,21 @@ pub async fn handle_ai(
         ai_type.to_string()
     );
 
+    // Load the route context
+    let env = &ctx.env;
+
     // Get the system prompt for the AI service.
     let prompt = prompt::get_system_prompt(ai_type)?;
 
     // Argument prompt with Vector Database content (RAG)
-    let env = &ctx.env;
     let user_context = rag::augment_prompt(env, message).await?;
 
-    // Build the full prompt to the AI
+    // Define the full prompt that gets passed to the AI backend
     let full_prompt = if user_context != "No relevant documentation found." {
-        format!("{}\n\n## Relevant Documentation\n{}", prompt, user_context)
+        format!(
+            "{}\n\n<context>\n{}\n</context>\n\nInstruction: Answer the user's question using the context above, following the Formatting Protocol defined in the system prompt.",
+                prompt, user_context
+            )
     } else {
         prompt.to_string()
     };
