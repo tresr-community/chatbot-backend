@@ -1,12 +1,12 @@
 # Chat Bot Backend
 
-The tresr community chatbot
+The TRESR community chatbot
 
 This repository contains the source files for the Ron Jay [chatbot](https://chat.tresr.community) backend.
 
-This is an _unofficial_ chatbot for the tresr community and is not affiliated with the tresr project.
+This is an _unofficial_ chatbot for the TRESR community and is not affiliated with the [TRESR](https://tresr.com) project.
 
-It is made with :heart: _love_ :heart: for the tresr community.
+It is made with :heart: _love_ :heart: for the TRESR community.
 
 ## How to run locally
 

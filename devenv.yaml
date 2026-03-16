@@ -4,8 +4,13 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
+  git-hooks:
+    url: github:cachix/git-hooks.nix
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
   nixpkgs:
-    url: github:cachix/devenv-nixpkgs/bump-rolling
+    url: github:cachix/devenv-nixpkgs/rolling
   rust-overlay:
     url: github:oxalica/rust-overlay
     inputs:
@@ -17,9 +22,5 @@ clean:
   keep:
     - EDITOR
     - USER
-impure: true
-
-# Not setting provider or profile here to allow user to configure it
-# in the ~/.config/secretspec/config.toml
 secretspec:
   enable: true
