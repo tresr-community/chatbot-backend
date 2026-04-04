@@ -69,7 +69,7 @@ jobs:
       - id: pr_comment_thumbs_up
         name: PR Comment (Thumbs Up)
         if: ${{ steps.wait_for_workers.outputs.conclusion == 'success' }}
-        uses: exercism/pr-commenter-action@v1.5.1
+        uses: exercism/pr-commenter-action@v1.5.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           config-file: .github/pr-comments/thumbs_up.yaml
@@ -83,7 +83,7 @@ jobs:
       - id: pr_comment_thumbs_down
         name: PR Comment (Thumbs Down)
         if: ${{ steps.wait_for_workers.outputs.conclusion != 'success' }}
-        uses: exercism/pr-commenter-action@v1.5.1
+        uses: exercism/pr-commenter-action@v1.5.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           config-file: .github/pr-comments/thumbs_down.yaml
