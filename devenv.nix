@@ -120,7 +120,9 @@ in
     hooks = {
       actionlint.enable = true;
       action-validator.enable = true;
-      cargo-check.enable = true;
+      cargo-check = {
+        enable = true;
+      };
       check-json.enable = true;
       check-merge-conflicts.enable = true;
       check-shebang-scripts-are-executable.enable = true;
@@ -136,7 +138,12 @@ in
         };
       };
       commitizen.enable = true;
-      convco.enable = true;
+      convco = {
+        enable = true;
+        settings = {
+          configPath = ".versionrc";
+        };
+      };
       deadnix.enable = true;
       dialyzer.enable = true;
       editorconfig-checker.enable = true;
