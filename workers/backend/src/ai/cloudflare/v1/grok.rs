@@ -9,7 +9,7 @@
 /// --header 'cf-aig-authorization: Bearer CF_AI_GATEWAY_TOKEN' \
 /// --header 'Authorization: Bearer GROK_TOKEN' \
 /// --data '{
-///    "model": "grok-2-1212",
+///    "model": "grok",
 ///    "messages": [
 ///        {
 ///            "role": "user",
@@ -28,7 +28,7 @@ use chatbot_utils::console_trace;
 
 const AI_ENDPOINT: &str =
     "https://gateway.ai.cloudflare.com/v1/6d6a8fb1f9f3f38b7374d4974c0743cf/tresr-community/grok";
-const AI_MODEL: &str = "grok-4-1-fast-non-reasoning";
+const AI_MODEL: &str = "grok-4.20-0309-non-reasoning";
 
 // Response structures matching Grok's format
 #[derive(Deserialize)]

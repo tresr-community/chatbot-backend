@@ -11,5 +11,5 @@ members = [
 
 opt-level = "s"
 lto = true
-strip = true
+strip = false
 codegen-units = 1

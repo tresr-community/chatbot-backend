@@ -10,6 +10,8 @@ let
   ];
 
   devPackages = with pkgs; [
+    cargo-audit
+    cargo-edit
     cargo-generate
     cargo-leptos
     direnv
@@ -45,6 +47,7 @@ in
   };
 
   cachix = {
+    enable = true;
     pull = [
       "tresr-community"
     ];
@@ -63,20 +66,28 @@ in
   packages = packages ++ lib.optionals (!config.container.isBuilding) devPackages;
 
   enterShell = ''
-    figlet -f starwars -w 180 $PROJECT
+    if [[ "''${CI:-false}" == "true" ]]; then
+      echo "devenv running in CI"
+    else
+      figlet -f slant -w 180 "$(echo "$PROJECT" | tr '[:lower:]-' '[:upper:] ')"
 
-    hello --greeting="Hello ''${USER:-user}, welcome to the $PROJECT project!"
+      hello --greeting="Hello ''${USER:-user}, welcome to the $PROJECT project."
 
-    echo ""
-    echo "#########################"
-    echo "#### Helper scripts #####"
-    echo "#########################"
-    echo "🦾"
-    ${pkgs.gnused}/bin/sed -e 's| |••|g' -e 's|=| |' <<EOF | ${pkgs.util-linuxMinimal}/bin/column -t | ${pkgs.gnused}/bin/sed -e 's|^|🦾 |' -e 's|••| |g'
-    ${lib.generators.toKeyValue { } (lib.mapAttrs (_name: value: value.description) config.scripts)}
-    EOF
-    echo "🦾"
-    echo "#########################"
+      ${lib.optionalString (config.scripts != { }) ''
+        echo ""
+        echo "#########################"
+        echo "#### Helper scripts #####"
+        echo "#########################"
+        echo "🦾"
+        ${lib.concatStrings (
+          lib.mapAttrsToList (
+            name: value: "printf '🦾 %-20s  %s\\n' '${name}' '${value.description}'\n"
+          ) config.scripts
+        )}
+        echo "🦾"
+        echo "#########################"
+      ''}
+    fi
   '';
 
   languages = {
@@ -168,7 +179,7 @@ in
         };
       };
       mixed-line-endings.enable = true;
-      nixfmt-rfc-style.enable = true;
+      nixfmt.enable = true;
       pre-commit-hook-ensure-sops = {
         enable = true;
         excludes = [
