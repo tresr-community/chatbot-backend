@@ -10,6 +10,8 @@ let
   ];
 
   devPackages = with pkgs; [
+    cargo-audit
+    cargo-edit
     cargo-generate
     cargo-leptos
     direnv
