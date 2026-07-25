@@ -29,7 +29,7 @@ chatbot-utils = { path = "../../crates/utils" }
 worker = "0.8.5"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
-base64 = "0.22.1"
+base64 = "0.23.0"
 tokio = { version = "1.52.3", features = ["rt"] }
 uuid = { version = "1.23", features = ["v4", "js"] }
 nanohtml2text = "0.2"
