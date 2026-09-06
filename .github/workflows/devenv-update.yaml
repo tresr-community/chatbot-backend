@@ -88,26 +88,26 @@ jobs:
           useDaemon: true
           skipPush: false
 
-      - id: devenv_install
-        name: Devenv install
+      - id: cachix_tools_install
+        name: Install Cachix Tools
         run: |
-          nix profile install --accept-flake-config github:cachix/devenv
+          nix profile install --accept-flake-config nixpkgs#devenv nixpkgs#secretspec nixpkgs#cachix
 
       - id: secretspec_check
         name: "Secretspec Check 🔐"
-        shell: devenv shell --quiet bash -- -e {0}
+        shell: devenv --no-tui shell --quiet bash -- -e {0}
         run: |
           secretspec check
 
       - id: devenv_update
         name: Devenv update
         run: |
-          devenv update
+          devenv --no-tui update
 
       - id: devenv_test
         name: Devenv test
         run: |
-          devenv test
+          devenv --no-tui test
 
       - id: create_pull_request
         name: Create Pull Request
