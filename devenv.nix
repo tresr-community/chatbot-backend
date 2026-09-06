@@ -23,7 +23,6 @@ let
     leptosfmt
     openssl
     rclone
-    secretspec
     toml-cli
     trivy
     wasm-pack
